@@ -23,3 +23,4 @@ app.listen(PORT, () => {
 
 app.use('/api', movieRoutes)
 app.use('/api', movieTheaterRoutes)
+module.exports = app
