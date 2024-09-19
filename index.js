@@ -8,7 +8,7 @@ require('dotenv').config();
 const app = express();
 app.use(express.json());
 app.use(cors());
-mongoose.connect('mongodb+srv://haikt12345:1234@cluster0.5hebbij.mongodb.net/streammingmovies', {
+mongoose.connect(process.env.MONGODB, {
 })
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log(err));
