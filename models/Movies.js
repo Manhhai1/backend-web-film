@@ -5,28 +5,27 @@ const Schema = mongoose.Schema;
 const movieSchema = new Schema({
   name: { 
     type: String, 
-    required: true 
+    required: false
   },
   poster_url: { 
     type: String, 
-    required: true 
+    required: false
   },
   thumb_url: { 
     type: String, 
-    required: true 
+    required: false
   },
   slug: { 
     type: String, 
-    required: true,
-    unique: true 
+    required: false,
   },
   quality: { 
     type: String, 
-    required: true 
+    required: false
   },
   origin_name: { 
     type: String, 
-    required: true 
+    required: false
   },
   lang: { 
     type: String, 
@@ -37,6 +36,6 @@ const movieSchema = new Schema({
 });
 
 // Tạo model Movie từ schema
-const Movie = mongoose.model('Movie', movieSchema);
+const Movies = mongoose.model('Movie', movieSchema);
 
-module.exports = Movie;
+module.exports = Movies;
