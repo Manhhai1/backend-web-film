@@ -11,7 +11,8 @@ const getMovieTheater = async (req, res) => {
         if (totalItems === 0) {
             return res.status(404).json({ message: 'Không tìm thấy phim chiếu rạp.' });
         }
-        const movies= await Movies.find({ "movie.chieurap": true })
+        const movies = await Movies.find({ "movie.chieurap": true })
+        .sort({ "movie.year": -1 })
         .skip(skip)
         .limit(limit);
     const totalPages = Math.ceil(totalItems / limit);

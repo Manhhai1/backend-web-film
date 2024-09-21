@@ -51,6 +51,7 @@ const searchMovies = async (req, res) => {
           { "movie.content": { $regex: regexKeywordByName } },
         ]
       })
+      .sort({ "movie.year": -1 })
       .skip((page - 1) * 10) // Đảm bảo rằng bạn sử dụng limit đúng ở đây
       .limit(10)
     ]);
@@ -82,9 +83,6 @@ const searchMovies = async (req, res) => {
     res.status(500).json({ message: 'Error searching movies' });
   }
 };
-
-module.exports = { searchMovies };
-
 
 module.exports = {
   searchMovies,
