@@ -1,27 +1,20 @@
-const mongoose = require('mongoose');
-
-/**
- * Controller để lấy danh sách phim theo năm với phân trang
- * @param {Object} req - Request object
- * @param {Object} res - Response object
- */
+const Movies = require('../models/Movies')
 const getMovieTheater = async (req, res) => {
     try {
         const page = parseInt(req.query.page, 10) || 1; // Default là trang 1
         const limit = 10; // Số lượng phim trên mỗi trang
-
+        const skip = (page - 1) * limit;
         if (isNaN(page)) {
             return res.status(400).json({ error: 'trang không hợp lệ.' });
         }
-     
-        const collection = mongoose.connection.collection('movies_chieu_rap');
-        // Tính toán số lượng phim để bỏ qua dựa trên trang hiện tại
-        const skip = (page - 1) * limit;
-
-        // Truy vấn dữ liệu từ MongoDB
-        const movies = await collection.find().skip(skip).limit(limit).toArray();
-        const totalItems = await collection.countDocuments();
-        const totalPages = Math.ceil(totalItems / limit);    
+        const totalItems = await Movies.countDocuments({ "movie.chieurap": true });
+        if (totalItems === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy phim chiếu rạp.' });
+        }
+        const movies= await Movies.find({ "movie.chieurap": true })
+        .skip(skip)
+        .limit(limit);
+    const totalPages = Math.ceil(totalItems / limit);
         // Trả về dữ liệu
         res.status(200).json({
             data: {

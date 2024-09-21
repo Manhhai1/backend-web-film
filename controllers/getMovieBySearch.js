@@ -23,10 +23,9 @@ const searchBySlug = str => {
   str = str.replace(/^-+|-+$/g, '');
   return str.trim();
 };
-
 const searchMovies = async (req, res) => {
   try {
-    const { keyword, page=1 } = req.query; // Mặc định page là 1
+    const { keyword, page = 1 } = req.query; // Mặc định page là 1
     if (!keyword) {
       return res.status(400).json({ message: 'Keyword is required' });
     }
@@ -34,32 +33,36 @@ const searchMovies = async (req, res) => {
     const regexKeywordByName = new RegExp(searchByNameVN(keyword), 'i');
     const regexKeywordBySlug = new RegExp(searchBySlug(keyword), 'i');
 
-    const totalItems = await Movies.countDocuments({
-      $or: [
-        { name: { $regex: regexKeywordByName } },
-        { origin_name: { $regex: regexKeywordByName } },
-        { slug: { $regex: regexKeywordBySlug } }
-      ]
-    });
+    // Tạo hai truy vấn khác nhau và thực hiện đồng thời
+    const [totalItems, movies] = await Promise.all([
+      Movies.countDocuments({
+        $or: [
+          { "movie.name": { $regex: regexKeywordByName } },
+          { "movie.origin_name": { $regex: regexKeywordByName } },
+          { "movie.slug": { $regex: regexKeywordBySlug } },
+          { "movie.content": { $regex: regexKeywordByName } },
+        ]
+      }),
+      Movies.find({
+        $or: [
+          { "movie.name": { $regex: regexKeywordByName } },
+          { "movie.origin_name": { $regex: regexKeywordByName } },
+          { "movie.slug": { $regex: regexKeywordBySlug } },
+          { "movie.content": { $regex: regexKeywordByName } },
+        ]
+      })
+      .skip((page - 1) * 10) // Đảm bảo rằng bạn sử dụng limit đúng ở đây
+      .limit(10)
+    ]);
 
-    const limit = 10; // Số lượng phim hiển thị mỗi trang
-    const totalPages = Math.ceil(totalItems / limit); // Tổng số trang
+    const totalPages = Math.ceil(totalItems / 10); // Tổng số trang
 
-    const movies = await Movies.find({
-      $or: [
-        { name: { $regex: regexKeywordByName } },
-        { origin_name: { $regex: regexKeywordByName } },
-        { slug: { $regex: regexKeywordBySlug } }
-      ]
-    })
-    .skip((page - 1) * limit) // Bỏ qua số lượng phim đã hiển thị
-    .limit(limit); // Giới hạn số lượng phim trả về
     res.status(200).json({
       data: {
         params: {
           pagination: {
             totalItems,
-            totalItemsPerPage: limit,
+            totalItemsPerPage: 10,
             currentPage: page,
             totalPages,
           },
@@ -79,6 +82,9 @@ const searchMovies = async (req, res) => {
     res.status(500).json({ message: 'Error searching movies' });
   }
 };
+
+module.exports = { searchMovies };
+
 
 module.exports = {
   searchMovies,

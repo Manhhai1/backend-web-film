@@ -18,8 +18,6 @@ mongoose.connect(process.env.MONGODB, {})
   .catch(err => console.log('MongoDB connection error:', err));
 
 // Hàm gom các collection
-
-
 // Định nghĩa các route
 app.use('/api', movieRoutes);
 app.use('/api', movieTheaterRoutes);
